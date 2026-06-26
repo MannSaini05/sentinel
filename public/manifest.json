@@ -1,0 +1,18 @@
+{
+  "name": "Sentinel — Screen Time Monitor",
+  "short_name": "Sentinel",
+  "description": "Monitor and manage your child's screen time",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#06b6d4",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
