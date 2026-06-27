@@ -15,11 +15,17 @@ import { renderSettingsPage } from './pages/settings.js';
 import { renderDbViewerPage } from './pages/dbViewer.js';
 import { renderActivityTracker } from './pages/activityTracker.js';
 import { initAlertListener } from './components/alertBanner.js';
+import renderLanding from './pages/landing.js';
 
 // ── Public routes (no auth needed) ───────────────────────────
-const PUBLIC_PATHS = ['/login', '/register', '/database'];
+const PUBLIC_PATHS = ['/', '/login', '/register', '/database'];
 
 // ── Register routes ──────────────────────────────────────────
+
+router.addRoute('/', (container) => {
+  renderLanding(container);
+  _postRender();
+});
 
 router.addRoute('/login', (container) => {
   stopHeartbeatService(); // Stop tracking on logout
@@ -76,18 +82,23 @@ router.addRoute('/tracker', async (container) => {
 router.setBeforeEach((path) => {
   const authed = isAuthenticated();
 
-  // Root redirect
-  if (path === '/' || path === '') {
-    return authed ? '/dashboard' : '/login';
+  // Empty path → landing if not authed, dashboard if authed
+  if (path === '') {
+    return authed ? '/dashboard' : '/';
   }
 
-  // Not authenticated → send to login (unless already on public route)
+  // Root '/' → show landing (not authed) or dashboard (authed)
+  if (path === '/') {
+    return authed ? '/dashboard' : '/';
+  }
+
+  // Not authenticated → send to landing (unless already on public route)
   if (!authed && !PUBLIC_PATHS.includes(path)) {
-    return '/login';
+    return '/';
   }
 
-  // Authenticated but on login/register → redirect to dashboard
-  if (authed && PUBLIC_PATHS.includes(path)) {
+  // Authenticated but on login/register/landing → redirect to dashboard
+  if (authed && ['/', '/login', '/register'].includes(path)) {
     return '/dashboard';
   }
 
