@@ -4,6 +4,8 @@
 
 import { register } from '../services/auth.js';
 import router from '../utils/router.js';
+import { showToast } from '../utils/helpers.js';
+import { showAlertBanner } from '../components/alertBanner.js';
 
 /**
  * Render the registration page with role selector, form validation,
@@ -276,7 +278,29 @@ export function renderRegisterPage(container) {
         return;
       }
 
-      // Success — navigate to dashboard
+      // Show welcome toast
+      showToast(`🎉 Welcome to Sentinel, ${name}!`, 'success', 5000);
+
+      // Show a contextual alert banner after navigating
+      setTimeout(() => {
+        if (role === 'parent') {
+          showAlertBanner({
+            type: 'info',
+            message: `Welcome aboard, ${name}! Go to Settings → Link Code to connect your child's account.`,
+            childName: '🛡️ Getting Started',
+            createdAt: new Date().toISOString(),
+          });
+        } else {
+          showAlertBanner({
+            type: 'info',
+            message: `Hey ${name}! Generate a link code and share it with your parent to connect.`,
+            childName: '🔗 Connect with Parent',
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }, 500);
+
+      // Navigate to dashboard
       router.navigate('/dashboard');
     } catch (err) {
       showError('An unexpected error occurred. Please try again.');

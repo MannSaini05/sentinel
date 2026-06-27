@@ -4,6 +4,7 @@
 
 import { login } from '../services/auth.js';
 import router from '../utils/router.js';
+import { showToast } from '../utils/helpers.js';
 
 /**
  * Render the login page with animated glassmorphic card,
@@ -162,7 +163,9 @@ export function renderLoginPage(container) {
         return;
       }
 
-      // Success — navigate to dashboard
+      // Success — show welcome toast and navigate
+      const userName = result.user?.name || 'there';
+      showToast(`👋 Welcome back, ${userName}!`, 'success', 4000);
       router.navigate('/dashboard');
     } catch (err) {
       showError('An unexpected error occurred. Please try again.');
