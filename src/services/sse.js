@@ -49,7 +49,7 @@ export function connectSSE(token) {
     };
 
     // Listen for specific event types
-    const eventTypes = ['usage_update', 'alert', 'session_start', 'session_end'];
+    const eventTypes = ['usage_update', 'alert', 'session_start', 'session_end', 'child_status', 'heartbeat'];
 
     eventTypes.forEach(eventType => {
       _eventSource.addEventListener(eventType, (event) => {

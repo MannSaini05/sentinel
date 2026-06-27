@@ -3,6 +3,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import fs from 'fs';
 import { getDb, closeDb } from './db/schema.js';
 import { startSimulator, stopSimulator } from './services/simulator.js';
 
@@ -55,12 +56,21 @@ app.use('/api/*', (req, res) => {
 // ─── Serve Frontend (Production) ────────────────────────────────────────
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distPath = path.join(__dirname, '..', 'dist');
-app.use(express.static(distPath));
+const indexPath = path.join(distPath, 'index.html');
 
-// SPA catch-all: serve index.html for all non-API routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(distPath, 'index.html'));
-});
+// Only serve static files if dist/ exists (production build done)
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath));
+
+  // SPA catch-all: serve index.html for all non-API routes
+  app.get('*', (req, res) => {
+    res.sendFile(indexPath);
+  });
+} else {
+  app.get('*', (req, res) => {
+    res.json({ message: 'Sentinel API is running. Frontend build not found — run "npm run build" first.' });
+  });
+}
 
 // ─── Global Error Handler ───────────────────────────────────────────────
 app.use((err, req, res, _next) => {

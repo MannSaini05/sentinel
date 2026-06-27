@@ -26,18 +26,25 @@ export function generateToken(user) {
  * Attaches the full user object (minus password_hash) to req.user.
  */
 export function authenticate(req, res, next) {
+  let token = null;
+
+  // 1. Check Authorization header
   const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Authorization header is required' });
+  if (authHeader) {
+    const parts = authHeader.split(' ');
+    if (parts.length === 2 && parts[0] === 'Bearer') {
+      token = parts[1];
+    }
   }
 
-  const parts = authHeader.split(' ');
-  if (parts.length !== 2 || parts[0] !== 'Bearer') {
-    return res.status(401).json({ error: 'Authorization header must use Bearer scheme' });
+  // 2. Fallback: check query param (used by SSE/EventSource which can't set headers)
+  if (!token && req.query.token) {
+    token = req.query.token;
   }
 
-  const token = parts[1];
+  if (!token) {
+    return res.status(401).json({ error: 'Authentication token is required' });
+  }
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
